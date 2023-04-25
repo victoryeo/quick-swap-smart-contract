@@ -95,7 +95,7 @@ contract GriefingLock is Ownable {
         emit GriefingLocked(_sender, _receiver, _amount, _unlockTime);
     }
 
-    function deployPrincipal() external payable onlyOwner returns(PrincipalLock) {
+    function deployPrincipalLock() external payable onlyOwner returns(PrincipalLock) {
         _accessible = true;
         PrincipalLock principalContract = new PrincipalLock(address(this), _sender, _receiver, msg.value, SafeMath.add(_unlockTime, _timeGap));
         _pLockAddress = address(principalContract);
