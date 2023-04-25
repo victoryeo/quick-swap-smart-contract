@@ -38,7 +38,7 @@ const func: DeployFunction = async function ({
     })
 
     /* not required
-    args[0] = glock.address   // griefing lock recipient address
+    args[0] = glock1.address   // griefing lock recipient address
     args[1] = recipient       // sender
     args[2] = deployer        // receiver
     args[3] = 1               // token amount
