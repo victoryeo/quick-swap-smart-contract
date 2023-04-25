@@ -28,6 +28,7 @@ const func: DeployFunction = async function ({
         log: true,
     })
 
+    /* not required
     console.log("deployed from recipient")
     args[0] = deployer     // quick swap recipient address
     args[1] = 200          // time gap
@@ -35,7 +36,7 @@ const func: DeployFunction = async function ({
         from: recipient,
         args: args,
         log: true,
-    })
+    })*/
 
     /* not required
     args[0] = glock1.address   // griefing lock recipient address

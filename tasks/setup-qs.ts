@@ -4,10 +4,9 @@ import GriefingLock from "../artifacts/contracts/GriefingLock.sol/GriefingLock.j
 
 task("setup-qs", "Setup Quick Swap")
   .addParam("ttokenAddress", "TToken Contract Address", undefined, types.string)
-  .addParam("glockAddress1", "GriefingLock Contract Address", undefined, types.string)
-  .addParam("glockAddress2", "GriefingLock Contract Address", undefined, types.string)
+  .addParam("glockAddress", "GriefingLock Contract Address", undefined, types.string)
   .setAction(async (
-    { ttokenAddress, glockAddress1, glockAddress2 }: { ttokenAddress: string, glockAddress1: string, glockAddress2: string },
+    { ttokenAddress, glockAddress }: { ttokenAddress: string, glockAddress: string },
     { ethers }
   ) => {
     try {
@@ -15,23 +14,31 @@ task("setup-qs", "Setup Quick Swap")
       console.log("deployer", deployer.address)
       console.log("recipient", recipient.address)
 
-      const glockContract = new ethers.Contract(glockAddress2, GriefingLock.abi)
-      const glockContractWithRecipient = glockContract.connect(recipient)
+      const Glock = await ethers.getContractFactory('GriefingLock');
+      console.log('Deploying GriefingLock...');
+
+      let args: any[] = []
+      args[0] = recipient.address     // quick swap recipient address
+      args[1] = 200          // time gap
+      console.log("deployed from recipient")
+      const glock2 = await Glock.deploy(args[0], args[1])
+
+      //const glockContract = new ethers.Contract(glockAddress2, GriefingLock.abi)
+      //const glockContractWithRecipient = glockContract.connect(recipient)
 
       //deploy principalLock
-      let nonce = await recipient.getTransactionCount()
-      console.log("Nonce", nonce)
-      const tx1 = await glockContractWithRecipient.deployPrincipalLock( {nonce:nonce, value:2})
+      //let nonce = await recipient.getTransactionCount()
+      //console.log("Nonce", nonce)
+      const tx1 = await glock2.deployPrincipalLock({value:2})
       const res = await tx1.wait()
       console.log('Successfully deploy principal lock contract address', res.events[1]?.args);
 
       const Plock = await ethers.getContractFactory('PrincipalLock');
       console.log('Deploying PrincipalLock...');
 
-      let args: any[] = []
-      args[0] = glockAddress1   // griefing lock recipient address
-      args[1] = recipient       // sender
-      args[2] = deployer        // receiver
+      args[0] = glockAddress   // griefing lock recipient address
+      args[1] = deployer.address       // sender
+      args[2] = recipient.address        // receiver
       args[3] = 1               // token amount
       args[4] = 400             // unlock time
 
