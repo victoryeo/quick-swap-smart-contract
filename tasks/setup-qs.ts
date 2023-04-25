@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import TToken from "../artifacts/contracts/TToken.sol/TToken.json";
-import HTLC from "../artifacts/contracts/GriefingLock.sol/GriefingLock.json"
+import GriefingLock from "../artifacts/contracts/GriefingLock.sol/GriefingLock.json"
 
 task("setup-qs", "Setup Quick Swap")
   .addParam("ttokenAddress", "TToken Contract Address", undefined, types.string)
@@ -14,16 +14,13 @@ task("setup-qs", "Setup Quick Swap")
       console.log("deployer", deployer.address)
       console.log("recipient", recipient.address)
 
-      const ttokenContractDeployer = new ethers.Contract(ttokenAddress, TToken.abi, deployer);
-      const ttokenContractRecipient = new ethers.Contract(ttokenAddress, TToken.abi, recipient);
-
-      const glockContract = new ethers.Contract(glockAddress, HTLC.abi)
-      const glockContractWithDeployer = glockContract.connect(deployer)
+      const glockContract = new ethers.Contract(glockAddress, GriefingLock.abi)
+      const glockContractWithRecipient = glockContract.connect(recipient)
 
       //deploy principalLock
-      let nonce = await deployer.getTransactionCount()
+      let nonce = await recipient.getTransactionCount()
       console.log("Nonce", nonce)
-      const tx1 = await glockContractWithDeployer.deployPrincipalLock( {nonce:nonce, value:1})
+      const tx1 = await glockContractWithRecipient.deployPrincipalLock( {nonce:nonce, value:1})
       await tx1.wait()
       console.log('Successfully deploy principal contract address', tx1);
     } catch ({ message }) {
