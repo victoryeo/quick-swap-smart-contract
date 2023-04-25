@@ -7,26 +7,27 @@ const func: DeployFunction = async function ({
 }: HardhatRuntimeEnvironment) {
     let args: any[] = []
     const { deploy } = deployments
-    const { deployer, recipient } = await getNamedAccounts()
-    console.log("deploy from account", deployer)
-    console.log("quickswap recipient", recipient)
+    const { admin, alice, bob } = await getNamedAccounts()
+    console.log("deploy from account", admin)
+    console.log("quickswap users", alice, bob)
 
     args[0] = "T_NAME"
     args[1] = "T_SYMBOL"
     const ttoken = await deploy("TToken", {
-        from: deployer,
+        from: admin,
         args: args,
         log: true,
     })
 
-    console.log("deployed from deployer")
-    args[0] = recipient    // quick swap recipient address
+    /* not required
+    console.log("deployed from bob")
+    args[0] = alice        // quick swap recipient address
     args[1] = 200          // time gap
     const glock1 = await deploy("GriefingLock", {
-        from: deployer,
+        from: bob,
         args: args,
         log: true,
-    })
+    })*/
 
     /* not required
     console.log("deployed from recipient")
