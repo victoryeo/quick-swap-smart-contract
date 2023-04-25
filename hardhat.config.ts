@@ -48,11 +48,14 @@ const config: HardhatUserConfig = {
     }
   },
   namedAccounts: {
-    deployer: {
+    admin: {
         default: 0,
     },
-    recipient: {
-        default: 1
+    alice: {
+        default: 1,
+    },
+    bob: {
+        default: 2
     }
   },
 };
