@@ -35,23 +35,28 @@ task("setup-qs", "Setup Quick Swap")
       const plockAlice = await glockAlice.deployPrincipalLock({value:2})
       const res = await plockAlice.wait()
       console.log('Alice successfully deploy principal lock contract address', res.events[1]?.args);
-
+      let unlockTime = Number(res.events[1]?.args.unlockTime)
+      console.log("unlockTime", unlockTime)
+      
       const plockContract = await ethers.getContractFactory('PrincipalLock');
       console.log('Deploying PrincipalLock...');
 
       args[0] = glockBob.address  // griefing lock address
       args[1] = bob.address       // sender
       args[2] = alice.address     // receiver
-      args[3] = 1               // token amount
-      args[4] = 400             // unlock time
+      args[3] = 1                 // token amount
+      args[4] = unlockTime + 400             // unlock time
 
       const plockContractBob = plockContract.connect(bob)
       const plockBob = await plockContractBob.deploy(args[0], args[1], args[2], args[3], args[4]);
       console.log('Bob deployed Principal lock to:', plockBob.address);
 
       const plockBobAlice = plockBob.connect(alice)
+      console.log("Alice withdraw from Bob's principal lock")
       await plockBobAlice.withdraw();
-      //await plockAlice.withdraw();
+
+      console.log("Bob withdraw from Alice's principal lock")
+      await plockAlice.withdraw();
 
     } catch ({ message }) {
       console.error(message)
