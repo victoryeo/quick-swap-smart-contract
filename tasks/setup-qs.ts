@@ -1,6 +1,7 @@
 import { task, types } from "hardhat/config";
 import TToken from "../artifacts/contracts/TToken.sol/TToken.json";
-import GriefingLock from "../artifacts/contracts/GriefingLock.sol/GriefingLock.json"
+import GriefingLock from "../artifacts/contracts/GriefingLock.sol/GriefingLock.json";
+import PrincipalLock from "../artifacts/contracts/PrincipalLock.sol/PrincipalLock.json";
 
 task("setup-qs", "Setup Quick Swap")
   .addParam("ttokenAddress", "TToken Contract Address", undefined, types.string)
@@ -35,6 +36,7 @@ task("setup-qs", "Setup Quick Swap")
       const plockAlice = await glockAlice.deployPrincipalLock({value:2})
       const res = await plockAlice.wait()
       console.log('Alice successfully deploy principal lock contract address', res.events[1]?.args);
+      let principalAddress = res.events[1]?.args.principalAddress;
       let unlockTime = Number(res.events[1]?.args.unlockTime)
       console.log("unlockTime", unlockTime)
       
@@ -55,8 +57,10 @@ task("setup-qs", "Setup Quick Swap")
       console.log("Alice withdraw from Bob's principal lock")
       await plockBobAlice.withdraw();
 
+      const principalContract = new ethers.Contract(principalAddress, PrincipalLock.abi)
+      const plockAliceBob = principalContract.connect(bob)
       console.log("Bob withdraw from Alice's principal lock")
-      await plockAlice.withdraw();
+      await plockAliceBob.withdraw();
 
     } catch ({ message }) {
       console.error(message)
