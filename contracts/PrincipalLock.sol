@@ -17,7 +17,7 @@ contract PrincipalLock {
     bool private _refunded = false;
 
     event PrincipalDeployed(address indexed sender, address indexed receiver, uint256 amount, uint256 unlockTime);
-    event PrincipalWithdrawn(address indexed receiver, uint256 amount);
+    event PrincipalWithdrawn(address indexed receiver, uint256 amount, bool result);
     event PrincipalRefunded(address indexed sender, uint256 amount);
 
     constructor (address gLockAddress, address sender, address receiver, uint tokenAmount, uint unlockTime)
@@ -76,11 +76,12 @@ contract PrincipalLock {
         _;
     }
 
-    function withdraw() public payable withdrawable returns (bool) {
+    function withdraw() external payable withdrawable returns (bool) {
         _withdrawn = true;
-        payable(_receiver).transfer(_amount);
-        emit PrincipalWithdrawn(_receiver, _amount);
-        return true;
+        bool success = false;
+        (success, ) = payable(_receiver).call{value: _amount, gas: 50000}("");
+        emit PrincipalWithdrawn(_receiver, _amount, success);
+        return success;
     }
     /**
         @dev
@@ -94,6 +95,10 @@ contract PrincipalLock {
         payable(_sender).transfer(_amount);
         emit PrincipalRefunded(_sender, _amount);
         return true;
+    }
+
+    function getUnlockTime() public view returns (uint) {
+        return _unlockTime;
     }
 
     receive() external payable {}
