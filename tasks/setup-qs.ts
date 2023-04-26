@@ -19,26 +19,24 @@ task("setup-qs", "Setup Quick Swap")
       let args: any[] = []
       args[0] = alice.address     // quick swap recipient address
       args[1] = 200             // time gap
-      console.log("deployed from Bob")
       const glockContractBob = glockContract.connect(bob)
       const glockBob = await glockContractBob.deploy(args[0], args[1])
-      console.log("Bob successfully deploy Griefing contract")
+      console.log("Bob successfully deployed Griefing contract", glockBob.address)
 
       args[0] = bob.address     // quick swap recipient address
       args[1] = 200             // time gap
-      console.log("deployed from Alice")
       const glockContractAlice = glockContract.connect(alice)
       const glockAlice = await glockContractAlice.deploy(args[0], args[1])
-      console.log("Alice successfully deploy Griefing contract")
+      console.log("Alice successfully deployed Griefing contract", glockAlice.address)
 
       //deploy principalLock
       //let nonce = await recipient.getTransactionCount()
       //console.log("Nonce", nonce)
-      const tx1 = await glockAlice.deployPrincipalLock({value:2})
-      const res = await tx1.wait()
+      const plockAlice = await glockAlice.deployPrincipalLock({value:2})
+      const res = await plockAlice.wait()
       console.log('Alice successfully deploy principal lock contract address', res.events[1]?.args);
 
-      const Plock = await ethers.getContractFactory('PrincipalLock');
+      const plockContract = await ethers.getContractFactory('PrincipalLock');
       console.log('Deploying PrincipalLock...');
 
       args[0] = glockBob.address  // griefing lock address
@@ -47,9 +45,14 @@ task("setup-qs", "Setup Quick Swap")
       args[3] = 1               // token amount
       args[4] = 400             // unlock time
 
-      const plock = await Plock.deploy(args[0], args[1], args[2], args[3], args[4]);
-      await plock.deployed();
-      console.log('Bob deployed Principal lock to:', plock.address);
+      const plockContractBob = plockContract.connect(bob)
+      const plockBob = await plockContractBob.deploy(args[0], args[1], args[2], args[3], args[4]);
+      console.log('Bob deployed Principal lock to:', plockBob.address);
+
+      const plockBobAlice = plockBob.connect(alice)
+      await plockBobAlice.withdraw();
+      //await plockAlice.withdraw();
+
     } catch ({ message }) {
       console.error(message)
     }
