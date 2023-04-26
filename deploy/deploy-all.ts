@@ -30,23 +30,23 @@ const func: DeployFunction = async function ({
     })*/
 
     /* not required
-    console.log("deployed from recipient")
-    args[0] = deployer     // quick swap recipient address
+    console.log("deployed from alice")
+    args[0] = bob     // quick swap recipient address
     args[1] = 200          // time gap
     const glock2 = await deploy("GriefingLock", {
-        from: recipient,
+        from: alice,
         args: args,
         log: true,
     })*/
 
     /* not required
     args[0] = glock1.address   // griefing lock recipient address
-    args[1] = recipient       // sender
-    args[2] = deployer        // receiver
+    args[1] = alice       // sender
+    args[2] = bob        // receiver
     args[3] = 1               // token amount
     args[4] = 400             // unlock time
     await deploy("PrincipalLock", {
-        from: deployer,
+        from: alice,
         args: args,
         log: true,
     })*/
