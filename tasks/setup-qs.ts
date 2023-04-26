@@ -62,6 +62,13 @@ task("setup-qs", "Setup Quick Swap")
       console.log("Bob withdraw from Alice's principal lock")
       await plockAliceBob.withdraw();
 
+      console.log("Alice withdraw from Griefing lock")
+      const glockBobAlice = glockBob.connect(alice)
+      await glockBobAlice.withdraw()
+
+      console.log("Bob withdraw from Griefing lock")
+      const glockAliceBob = glockAlice.connect(bob)
+      await glockAliceBob.withdraw()
     } catch ({ message }) {
       console.error(message)
     }
