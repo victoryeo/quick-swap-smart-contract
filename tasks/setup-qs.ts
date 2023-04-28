@@ -61,17 +61,17 @@ task("setup-qs", "Setup Quick Swap")
       const plockAlice = new ethers.Contract(principalAddress, PrincipalLock.abi)
 
       const plockBobAlice = plockBob.connect(alice)
-      console.log("Alice withdraw from Bob's principal lock")
+      console.log("Alice withdraws from Bob's principal lock")
       await plockBobAlice.withdraw();
 
       const plockAliceBob = plockAlice.connect(bob)
-      console.log("Bob withdraw from Alice's principal lock")
+      console.log("Bob withdraws from Alice's principal lock")
       await plockAliceBob.withdraw();
 
-      console.log("Alice withdraw from Griefing lock")
+      console.log("Alice refunds from Griefing lock")
       await glockAlice.refund()
 
-      console.log("Bob withdraw from Griefing lock")
+      console.log("Bob refunds from Griefing lock")
       await glockBob.refund()
     } catch ({ message }) {
       console.error(message)
