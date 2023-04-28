@@ -25,14 +25,17 @@ task("setup-qs", "Setup Quick Swap")
       const glockBob = await glockContractBob.deploy(args[0], args[1])
       console.log("Bob successfully deployed Griefing contract", glockBob.address)
 
-      await glockBob.depositGriefingTokens({value: 1});
-      console.log("Bob successfully deposit Griefing token")
+      let griefingAmount = 1
+      await glockBob.depositGriefingAmount({value: griefingAmount});
+      console.log(`Bob successfully deposit ${griefingAmount} amount of ether for griefing`)
 
       args[0] = bob.address     // quick swap recipient address
       args[1] = 200             // time gap
       const glockContractAlice = glockContract.connect(alice)
       const glockAlice = await glockContractAlice.deploy(args[0], args[1])
       console.log("Alice successfully deployed Griefing contract", glockAlice.address)
+      await glockAlice.depositGriefingAmount({value: griefingAmount});
+      console.log(`Alice successfully deposit ${griefingAmount} amount of ether for griefing`)
 
       console.log('Deploying PrincipalLock...');
       const plockAlice = await glockAlice.deployPrincipalLock({value:2})
@@ -40,6 +43,8 @@ task("setup-qs", "Setup Quick Swap")
       let principalAddress = res.events[1]?.args.principalAddress;
       let unlockTime = Number(res.events[1]?.args.unlockTime)
       console.log('Alice successfully deploy principal lock contract address', principalAddress, "with unlockTime", unlockTime);
+
+      console.log("Alice's principal lock address ", (await glockAlice.getPrincipalLock()))
 
       const plockContract = await ethers.getContractFactory('PrincipalLock');
 
@@ -62,13 +67,13 @@ task("setup-qs", "Setup Quick Swap")
       console.log("Bob withdraw from Alice's principal lock")
       await plockAliceBob.withdraw();
 
+      //glockAlice.refund();
+      //glockBob.refund();
       console.log("Alice withdraw from Griefing lock")
       const glockBobAlice = glockBob.connect(alice)
       await glockBobAlice.withdraw()
 
       console.log("Bob withdraw from Griefing lock")
-      const glockAliceP = glockAlice.connect(principalAddress)
-      await glockAliceP.setRefund()
       const glockAliceBob = glockAlice.connect(bob)
       await glockAliceBob.withdraw()
     } catch ({ message }) {
