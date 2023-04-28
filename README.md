@@ -2,6 +2,13 @@
 
 For testing of quick swap on evm compatible blockchain, we can use mumbai and goerli testnet. Quick swap is inspired by https://arxiv.org/pdf/2211.15804.pdf  
 
+### quick swap essence
+Alice and Bob want to withdraw their principal amounts/tokens on different chains / same chain. (ie Bob deploys PLT on Besu, Alice deploys PL on Goerli, Bob withdraws Alice’s PL and Alice withdraws Bob’s PLT)
+
+The principal lock is used to exchange the principal amounts/tokens they want to exchange in the first place.
+
+The griefing lock is an extension of HTLC to account for the risks if either party backs out from the exchange of amounts/tokens. The griefing amount is the opportunity costs of locking in HTLC, paid by the party that backs out.
+
 ### compile smart contract
 npx hardhat compile
 
