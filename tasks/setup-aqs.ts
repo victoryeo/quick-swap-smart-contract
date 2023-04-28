@@ -21,10 +21,10 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       const ttoken = new ethers.Contract(ttokenAddress, TToken.abi)
       const ttokenAdmin = ttoken.connect(admin)
       console.log("Admin token balance", await ttokenAdmin.balanceOf(admin.address))
-      await ttokenAdmin.approve(admin.address, BigNumber.from(griefingAmount*10).mul(BigNumber.from(10).pow(PWR_INDEX)))
-      console.log(`Admin successfully approve ${griefingAmount}*10 amount of token`)
-      await ttokenAdmin.transferFrom(admin.address, bob.address, BigNumber.from(griefingAmount*10).mul(BigNumber.from(10).pow(PWR_INDEX)))
-      console.log(`Admin successfully transfer ${griefingAmount}*10 amount of token to Bob`)
+      await ttokenAdmin.approve(admin.address, BigNumber.from(griefingAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      console.log(`Admin successfully approve ${griefingAmount}*1 amount of token`)
+      await ttokenAdmin.transferFrom(admin.address, bob.address, BigNumber.from(griefingAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      console.log(`Admin successfully transfer ${griefingAmount}*1 amount of token to Bob`)
 
       const glockTTokenContract = await ethers.getContractFactory('GriefingLockTToken');
       console.log('Deploying GriefingLock with TToken...');
