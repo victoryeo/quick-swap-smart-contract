@@ -11,6 +11,7 @@ task("setup-aqs", "Setup Advanced Quick Swap")
     { ethers }
   ) => {
     try {
+      const PWR_INDEX = 0
       const [admin, alice, bob] = await ethers.getSigners();
       console.log("--------Start--------")
       console.log("Alice", alice.address)
@@ -19,9 +20,10 @@ task("setup-aqs", "Setup Advanced Quick Swap")
 
       const ttoken = new ethers.Contract(ttokenAddress, TToken.abi)
       const ttokenAdmin = ttoken.connect(admin)
-      await ttokenAdmin.approve(admin.address, BigNumber.from(griefingAmount*10).mul(BigNumber.from(10).pow(18)))
+      console.log("Admin token balance", await ttokenAdmin.balanceOf(admin.address))
+      await ttokenAdmin.approve(admin.address, BigNumber.from(griefingAmount*10).mul(BigNumber.from(10).pow(PWR_INDEX)))
       console.log(`Admin successfully approve ${griefingAmount}*10 amount of token`)
-      await ttokenAdmin.transferFrom(admin.address, bob.address, BigNumber.from(griefingAmount*10).mul(BigNumber.from(10).pow(18)))
+      await ttokenAdmin.transferFrom(admin.address, bob.address, BigNumber.from(griefingAmount*10).mul(BigNumber.from(10).pow(PWR_INDEX)))
       console.log(`Admin successfully transfer ${griefingAmount}*10 amount of token to Bob`)
 
       const glockTTokenContract = await ethers.getContractFactory('GriefingLockTToken');
@@ -34,10 +36,12 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       args[3] = 200             // time gap
       const glockContractBob = glockTTokenContract.connect(bob)
       const glockBob = await glockContractBob.deploy(args[0], args[1], args[2], args[3])
+      //console.log("Sender", await glockBob.getSender())
       console.log("Bob successfully deployed Griefing contract", glockBob.address)
 
       const ttokenBob = ttoken.connect(bob)
-      await ttokenBob.approve(glockBob.address, BigNumber.from(griefingAmount).mul(BigNumber.from(10).pow(18)))
+      console.log("Bob token balance", await ttokenBob.balanceOf(bob.address))
+      await ttokenBob.approve(glockBob.address, BigNumber.from(griefingAmount).mul(BigNumber.from(10).pow(PWR_INDEX)))
       console.log(`Bob successfully approve ${griefingAmount} amount of token`)
       await glockBob.depositGriefingToken();
       console.log(`Bob successfully deposit ${griefingAmount} amount of token for griefing`)
