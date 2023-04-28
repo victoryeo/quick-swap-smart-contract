@@ -11,8 +11,9 @@ task("setup-qs", "Setup Quick Swap")
   ) => {
     try {
       const [admin, alice, bob] = await ethers.getSigners();
-      console.log("alice", alice.address)
-      console.log("bob", bob.address)
+      console.log("--------Start--------")
+      console.log("Alice", alice.address)
+      console.log("Bob", bob.address)
 
       const glockContract = await ethers.getContractFactory('GriefingLock');
       console.log('Deploying GriefingLock...');
@@ -33,6 +34,7 @@ task("setup-qs", "Setup Quick Swap")
       const glockAlice = await glockContractAlice.deploy(args[0], args[1])
       console.log("Alice successfully deployed Griefing contract", glockAlice.address)
 
+      console.log('Deploying PrincipalLock...');
       const plockAlice = await glockAlice.deployPrincipalLock({value:2})
       const res = await plockAlice.wait()
       let principalAddress = res.events[1]?.args.principalAddress;
@@ -40,7 +42,6 @@ task("setup-qs", "Setup Quick Swap")
       console.log('Alice successfully deploy principal lock contract address', principalAddress, "with unlockTime", unlockTime);
 
       const plockContract = await ethers.getContractFactory('PrincipalLock');
-      console.log('Deploying PrincipalLock...');
 
       args[0] = glockBob.address  // griefing lock address
       args[1] = bob.address       // sender
