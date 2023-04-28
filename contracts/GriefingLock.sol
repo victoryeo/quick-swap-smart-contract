@@ -83,10 +83,10 @@ contract GriefingLock is Ownable {
             _withdrawn == false,
             "Refund: You may not refund as a withdrawal has been processed"
         );
-        require(
-            _unlockTime < block.timestamp,
-            "Refund: Please wait for timelock to pass"
-        );
+        //require(
+        //    _unlockTime < block.timestamp,
+        //    "Refund: Please wait for timelock to pass"
+        //);
         _;
     }
 
@@ -106,16 +106,16 @@ contract GriefingLock is Ownable {
 
     function withdraw() public payable withdrawable returns (bool) {
         _withdrawn = true;
-        payable(_receiver).transfer(_amount);
+        (bool sent, ) = payable(_receiver).call{value: _amount, gas: 50000}("");
         emit GriefingWithdrawn(_receiver, _amount);
-        return true;
+        return sent;
     }
 
     function refund() public payable refundable onlyOwner returns (bool) {
         _refunded = true;
-        payable(_sender).transfer(_amount);
+        (bool sent, ) = payable(_sender).call{value: _amount, gas: 50000}("");
         emit GriefingRefunded(_sender, _amount);
-        return true;
+        return sent;
     }
 
     /**

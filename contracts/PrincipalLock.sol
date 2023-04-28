@@ -88,13 +88,14 @@ contract PrincipalLock {
         When Bob grieves, the Griefing Lock's setRefund is called and allows Alice to withdraw Bob's Griefing Sum on Griefing Lock
     */
     function refund() public payable refundable returns (bool) {
+        bool success = false;
         if (_unlockTime >= block.timestamp) {
             _gLockAddress.setRefund();
         }
         _refunded = true;
-        payable(_sender).transfer(_amount);
+        (success, ) = payable(_sender).call{value: _amount, gas: 50000}("");
         emit PrincipalRefunded(_sender, _amount);
-        return true;
+        return success;
     }
 
     function getUnlockTime() public view returns (uint) {
