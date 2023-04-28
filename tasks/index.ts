@@ -1,1 +1,1 @@
-export * from "./setup-qs"
+export * from "./setup-bqs"
