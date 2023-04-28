@@ -90,7 +90,7 @@ contract GriefingLock is Ownable {
         _;
     }
 
-    function depositGriefingTokens() external payable onlyOwner {
+    function depositGriefingAmount() external payable onlyOwner {
         _amount = msg.value;
         emit GriefingLocked(_sender, _receiver, _amount, _unlockTime);
     }
