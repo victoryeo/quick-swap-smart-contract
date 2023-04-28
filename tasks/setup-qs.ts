@@ -24,22 +24,21 @@ task("setup-qs", "Setup Quick Swap")
       const glockBob = await glockContractBob.deploy(args[0], args[1])
       console.log("Bob successfully deployed Griefing contract", glockBob.address)
 
+      await glockBob.depositGriefingTokens({value: 1});
+      console.log("Bob successfully deposit Griefing token")
+
       args[0] = bob.address     // quick swap recipient address
       args[1] = 200             // time gap
       const glockContractAlice = glockContract.connect(alice)
       const glockAlice = await glockContractAlice.deploy(args[0], args[1])
       console.log("Alice successfully deployed Griefing contract", glockAlice.address)
 
-      //deploy principalLock
-      //let nonce = await recipient.getTransactionCount()
-      //console.log("Nonce", nonce)
       const plockAlice = await glockAlice.deployPrincipalLock({value:2})
       const res = await plockAlice.wait()
-      console.log('Alice successfully deploy principal lock contract address', res.events[1]?.args);
       let principalAddress = res.events[1]?.args.principalAddress;
       let unlockTime = Number(res.events[1]?.args.unlockTime)
-      console.log("unlockTime", unlockTime)
-      
+      console.log('Alice successfully deploy principal lock contract address', principalAddress, "with unlockTime", unlockTime);
+
       const plockContract = await ethers.getContractFactory('PrincipalLock');
       console.log('Deploying PrincipalLock...');
 
@@ -67,6 +66,8 @@ task("setup-qs", "Setup Quick Swap")
       await glockBobAlice.withdraw()
 
       console.log("Bob withdraw from Griefing lock")
+      const glockAliceP = glockAlice.connect(principalAddress)
+      await glockAliceP.setRefund()
       const glockAliceBob = glockAlice.connect(bob)
       await glockAliceBob.withdraw()
     } catch ({ message }) {
