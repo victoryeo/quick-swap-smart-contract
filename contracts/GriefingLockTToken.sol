@@ -89,7 +89,7 @@ contract GriefingLockTToken is Ownable {
         _;
     }
 
-    function depositGriefingTokens() external onlyOwner {
+    function depositGriefingToken() external onlyOwner {
         _tokenAddress.transferFrom(_sender, address(this), _tokenAmount);
         emit GriefingTokensLocked(address(_tokenAddress), _sender, _receiver, _tokenAmount, _unlockTime);
     }
