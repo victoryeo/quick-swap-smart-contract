@@ -148,4 +148,8 @@ contract GriefingLockTToken is Ownable {
     function getPrincipalLock() external view returns(address) {
         return _pLockAddress;
     }
+
+    function getSender() external view returns (address) {
+        return _sender;
+    }
 }
