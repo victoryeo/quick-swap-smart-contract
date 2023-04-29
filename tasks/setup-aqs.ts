@@ -89,9 +89,9 @@ task("setup-aqs", "Setup Advanced Quick Swap")
 
       console.log("Alice refunds from Griefing lock")
       await glockAlice.refund()
-/*
+
       console.log("Bob refunds from Griefing lock")
-      await glockBob.refund()*/
+      await glockBob.refund()
     } catch ({ message }) {
       console.error(message)
     }

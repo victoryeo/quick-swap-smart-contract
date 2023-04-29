@@ -82,10 +82,10 @@ contract GriefingLockTToken is Ownable {
             _withdrawn == false,
             "Refund: You may not refund as a withdrawal has been processed"
         );
-        require(
-            _unlockTime < block.timestamp,
-            "Refund: Please wait for timelock to pass"
-        );
+        //require(
+        //    _unlockTime < block.timestamp,
+        //    "Refund: Please wait for timelock to pass"
+        //);
         _;
     }
 
