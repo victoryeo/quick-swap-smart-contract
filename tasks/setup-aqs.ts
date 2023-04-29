@@ -55,7 +55,7 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       console.log("Alice successfully deployed Griefing contract", glockAlice.address)
       await glockAlice.depositGriefingAmount({value: griefingAmount});
       console.log(`Alice successfully deposit ${griefingAmount} amount of ether for griefing`)
-/*
+
       console.log('Deploying PrincipalLock...');
       const plockContractAlice = await glockAlice.deployPrincipalLock({value:2})
       const res = await plockContractAlice.wait()
@@ -64,7 +64,7 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       console.log('Alice successfully deploy principal lock contract address', principalAddress, "with unlockTime", unlockTime);
 
       console.log("Alice's principal lock address ", (await glockAlice.getPrincipalLock()))
-
+/*
       const plockContract = await ethers.getContractFactory('PrincipalLock');
 
       args[0] = glockBob.address  // griefing lock address
