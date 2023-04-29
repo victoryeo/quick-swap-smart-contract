@@ -64,7 +64,7 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       console.log('Alice successfully deploy principal lock contract address', principalAddress, "with unlockTime", unlockTime);
 
       console.log("Alice's principal lock address ", (await glockAlice.getPrincipalLock()))
-/*
+
       const plockContract = await ethers.getContractFactory('PrincipalLock');
 
       args[0] = glockBob.address  // griefing lock address
@@ -76,7 +76,7 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       const plockContractBob = plockContract.connect(bob)
       const plockBob = await plockContractBob.deploy(args[0], args[1], args[2], args[3], args[4]);
       console.log('Bob deployed Principal lock to:', plockBob.address);
-
+/*
       const plockAlice = new ethers.Contract(principalAddress, PrincipalLock.abi)
 
       const plockBobAlice = plockBob.connect(alice)
