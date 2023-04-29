@@ -37,7 +37,7 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       const glockContractBob = glockTTokenContract.connect(bob)
       const glockBob = await glockContractBob.deploy(args[0], args[1], args[2], args[3])
       //console.log("Sender", await glockBob.getSender())
-      console.log("Bob successfully deployed Griefing contract", glockBob.address)
+      console.log("Bob successfully deployed GriefingLock TToken contract", glockBob.address)
 
       const ttokenBob = ttoken.connect(bob)
       console.log("Bob token balance", await ttokenBob.balanceOf(bob.address))
@@ -76,7 +76,7 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       const plockContractBob = plockContract.connect(bob)
       const plockBob = await plockContractBob.deploy(args[0], args[1], args[2], args[3], args[4]);
       console.log('Bob deployed Principal lock to:', plockBob.address);
-/*
+
       const plockAlice = new ethers.Contract(principalAddress, PrincipalLock.abi)
 
       const plockBobAlice = plockBob.connect(alice)
@@ -89,7 +89,7 @@ task("setup-aqs", "Setup Advanced Quick Swap")
 
       console.log("Alice refunds from Griefing lock")
       await glockAlice.refund()
-
+/*
       console.log("Bob refunds from Griefing lock")
       await glockBob.refund()*/
     } catch ({ message }) {
