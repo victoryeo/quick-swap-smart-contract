@@ -3,6 +3,7 @@ import { BigNumber } from "ethers";
 import TToken from "../artifacts/contracts/TToken.sol/TToken.json";
 import GriefingLock from "../artifacts/contracts/GriefingLock.sol/GriefingLock.json";
 import PrincipalLock from "../artifacts/contracts/PrincipalLock.sol/PrincipalLock.json";
+import PrincipalLockTToken from "../artifacts/contracts/PrincipalLockTToken.sol/PrincipalLockTToken.json";
 
 task("setup-aqs", "Setup Advanced Quick Swap")
   .addParam("ttokenAddress", "TToken Contract Address", undefined, types.string)
@@ -59,13 +60,13 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       console.log('Deploying PrincipalLock...');
       const plockContractAlice = await glockAlice.deployPrincipalLock({value:2})
       const res = await plockContractAlice.wait()
-      let principalAddress = res.events[1]?.args.principalAddress;
+      let alicePrincipalAddress = res.events[1]?.args.principalAddress;
       let unlockTime = Number(res.events[1]?.args.unlockTime)
-      console.log('Alice successfully deploy principal lock contract address', principalAddress, "with unlockTime", unlockTime);
+      console.log('Alice successfully deploy principal lock contract address', alicePrincipalAddress, "with unlockTime", unlockTime);
 
       console.log("Alice's principal lock address ", (await glockAlice.getPrincipalLock()))
 
-      const plockContract = await ethers.getContractFactory('PrincipalLock');
+      /*const plockContract = await ethers.getContractFactory('PrincipalLock');
 
       args[0] = glockBob.address  // griefing lock address
       args[1] = bob.address       // sender
@@ -74,13 +75,19 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       args[4] = unlockTime + 400             // unlock time
 
       const plockContractBob = plockContract.connect(bob)
-      const plockBob = await plockContractBob.deploy(args[0], args[1], args[2], args[3], args[4]);
-      console.log('Bob deployed Principal lock to:', plockBob.address);
+      const plockBob = await plockContractBob.deploy(args[0], args[1], args[2], args[3], args[4]);*/
 
-      const plockAlice = new ethers.Contract(principalAddress, PrincipalLock.abi)
+      await ttokenBob.approve(glockBob.address, BigNumber.from(griefingAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      const plockContractBob = await glockBob.deployPrincipalLockTToken(BigNumber.from(griefingAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      await plockContractBob.wait()
+      const bobPrincipalAddress = await glockBob.getPrincipalLock()
+      console.log("Bob's principal lock token address ", bobPrincipalAddress)
+
+      const plockAlice = new ethers.Contract(alicePrincipalAddress, PrincipalLock.abi)
+      const plockBob = new ethers.Contract(bobPrincipalAddress, PrincipalLockTToken.abi)
 
       const plockBobAlice = plockBob.connect(alice)
-      console.log("Alice withdraws from Bob's principal lock")
+      console.log("Alice withdraws from Bob's principal lock token")
       await plockBobAlice.withdraw();
 
       const plockAliceBob = plockAlice.connect(bob)
@@ -90,7 +97,7 @@ task("setup-aqs", "Setup Advanced Quick Swap")
       console.log("Alice refunds from Griefing lock")
       await glockAlice.refund()
 
-      console.log("Bob refunds from Griefing lock")
+      console.log("Bob refunds from Griefing lock token")
       await glockBob.refund()
     } catch ({ message }) {
       console.error(message)
