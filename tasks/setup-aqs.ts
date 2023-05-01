@@ -5,7 +5,7 @@ import GriefingLock from "../artifacts/contracts/GriefingLock.sol/GriefingLock.j
 import PrincipalLock from "../artifacts/contracts/PrincipalLock.sol/PrincipalLock.json";
 import PrincipalLockTToken from "../artifacts/contracts/PrincipalLockTToken.sol/PrincipalLockTToken.json";
 
-task("setup-aqs", "Setup Advanced Quick Swap")
+task("advanced-qs", "Perform Advanced Quick Swap")
   .addParam("ttokenAddress", "TToken Contract Address", undefined, types.string)
   .setAction(async (
     { ttokenAddress }: { ttokenAddress: string },

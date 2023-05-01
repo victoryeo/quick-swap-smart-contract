@@ -2,7 +2,7 @@ import { task, types } from "hardhat/config";
 import GriefingLock from "../artifacts/contracts/GriefingLock.sol/GriefingLock.json";
 import PrincipalLock from "../artifacts/contracts/PrincipalLock.sol/PrincipalLock.json";
 
-task("setup-bqs", "Setup Basic Quick Swap")
+task("basic-qs", "Perform Basic Quick Swap")
   .addParam("ttokenAddress", "TToken Contract Address", undefined, types.string)
   .setAction(async (
     { ttokenAddress }: { ttokenAddress: string },
