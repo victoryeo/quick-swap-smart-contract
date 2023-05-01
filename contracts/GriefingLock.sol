@@ -99,7 +99,7 @@ contract GriefingLock is Ownable {
         _accessible = true;
         PrincipalLock principalContract = new PrincipalLock(address(this), _sender, _receiver, msg.value, SafeMath.add(_unlockTime, _timeGap));
         _pLockAddress = address(principalContract);
-        payable(_pLockAddress).transfer(msg.value);
+        (bool sent, ) = payable(_pLockAddress).call{value: msg.value, gas: 50000}("");
         emit PrincipalLocked(address(principalContract), msg.value, SafeMath.add(_unlockTime, _timeGap));
         return principalContract;
     }
