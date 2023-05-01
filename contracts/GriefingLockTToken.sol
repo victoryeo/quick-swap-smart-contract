@@ -94,7 +94,7 @@ contract GriefingLockTToken is Ownable {
         emit GriefingTokensLocked(address(_tokenAddress), _sender, _receiver, _tokenAmount, _unlockTime);
     }
 
-    function deployPrincipal(uint tokenAmount) external onlyOwner returns(PrincipalLockTToken) {
+    function deployPrincipalLockTToken(uint tokenAmount) external onlyOwner returns(PrincipalLockTToken) {
         _accessible = true;
         _tokenAddress.transferFrom(_sender, address(this), tokenAmount);
         PrincipalLockTToken principalContract = new PrincipalLockTToken(address(this), address(_tokenAddress), _sender, _receiver, tokenAmount, SafeMath.add(_unlockTime, _timeGap));
