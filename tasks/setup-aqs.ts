@@ -22,10 +22,10 @@ task("advanced-qs", "Perform Advanced Quick Swap")
       const ttoken = new ethers.Contract(ttokenAddress, TToken.abi)
       const ttokenAdmin = ttoken.connect(admin)
       console.log("Admin token balance", await ttokenAdmin.balanceOf(admin.address))
-      await ttokenAdmin.approve(admin.address, BigNumber.from(griefingAmount*2).mul(BigNumber.from(10).pow(PWR_INDEX)))
-      console.log(`Admin successfully approve ${griefingAmount}*1 amount of token`)
-      await ttokenAdmin.transferFrom(admin.address, bob.address, BigNumber.from(griefingAmount*2).mul(BigNumber.from(10).pow(PWR_INDEX)))
-      console.log(`Admin successfully transfer ${griefingAmount}*1 amount of token to Bob`)
+      await ttokenAdmin.approve(admin.address, BigNumber.from(griefingAmount*3).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      console.log(`Admin successfully approve ${griefingAmount}*3 amount of token`)
+      await ttokenAdmin.transferFrom(admin.address, bob.address, BigNumber.from(griefingAmount*3).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      console.log(`Admin successfully transfer ${griefingAmount}*3 amount of token to Bob`)
 
       const glockTTokenContract = await ethers.getContractFactory('GriefingLockTToken');
       console.log('Deploying GriefingLock with TToken...');
@@ -58,7 +58,8 @@ task("advanced-qs", "Perform Advanced Quick Swap")
       console.log(`Alice successfully deposit ${griefingAmount} amount of ether for griefing`)
 
       console.log('Deploying PrincipalLock...');
-      const plockContractAlice = await glockAlice.deployPrincipalLock({value:2})
+      let exchangeAmount = 2
+      const plockContractAlice = await glockAlice.deployPrincipalLock({value:exchangeAmount})
       const res = await plockContractAlice.wait()
       let alicePrincipalAddress = res.events[1]?.args.principalAddress;
       let unlockTime = Number(res.events[1]?.args.unlockTime)
@@ -77,8 +78,8 @@ task("advanced-qs", "Perform Advanced Quick Swap")
       const plockContractBob = plockContract.connect(bob)
       const plockBob = await plockContractBob.deploy(args[0], args[1], args[2], args[3], args[4]);*/
 
-      await ttokenBob.approve(glockBob.address, BigNumber.from(griefingAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
-      const plockContractBob = await glockBob.deployPrincipalLockTToken(BigNumber.from(griefingAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      await ttokenBob.approve(glockBob.address, BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      const plockContractBob = await glockBob.deployPrincipalLockTToken(BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
       await plockContractBob.wait()
       const bobPrincipalAddress = await glockBob.getPrincipalLock()
       console.log("Bob's principal lock token address ", bobPrincipalAddress)
@@ -87,11 +88,11 @@ task("advanced-qs", "Perform Advanced Quick Swap")
       const plockBob = new ethers.Contract(bobPrincipalAddress, PrincipalLockTToken.abi)
 
       const plockBobAlice = plockBob.connect(alice)
-      console.log("Alice withdraws from Bob's principal lock token")
+      console.log(`Alice withdraws ${exchangeAmount} token from Bob's principal lock token`)
       await plockBobAlice.withdraw();
 
       const plockAliceBob = plockAlice.connect(bob)
-      console.log("Bob withdraws from Alice's principal lock")
+      console.log(`Bob withdraws ${exchangeAmount} ether from Alice's principal lock`)
       await plockAliceBob.withdraw();
 
       console.log("Alice refunds from Griefing lock")
