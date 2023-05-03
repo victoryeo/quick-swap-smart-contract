@@ -89,6 +89,11 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       await ttokenAdmin.transferFrom(admin.address, bob.address, BigNumber.from(griefingAmount*3).mul(BigNumber.from(10).pow(PWR_INDEX)))
       console.log(`Admin successfully transfer ${griefingAmount}*3 amount of token to Bob`)
 
+      await ttokenAdmin.approve(admin.address, BigNumber.from(griefingAmount*3).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      console.log(`Admin successfully approve ${griefingAmount}*3 amount of token`)
+      await ttokenAdmin.transferFrom(admin.address, alice.address, BigNumber.from(griefingAmount*3).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      console.log(`Admin successfully transfer ${griefingAmount}*3 amount of token to Alice`)
+
       const glockTTokenContract = await ethers.getContractFactory('GriefingLockTToken');
       console.log('Deploying GriefingLock with USD Token...');
 
@@ -109,14 +114,25 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       await glockBob.depositGriefingToken();
       console.log(`Bob successfully deposit ${griefingAmount} amount of token for griefing`)
 
-      const glockContract = await ethers.getContractFactory('GriefingLock');
-      console.log('Deploying GriefingLock...');
-      args[0] = bob.address     // quick swap recipient address
-      args[1] = 200             // time gap
-      const glockContractAlice = glockContract.connect(alice)
-      const glockAlice = await glockContractAlice.deploy(args[0], args[1])
-      console.log("Alice successfully deployed Griefing contract", glockAlice.address)
-      // fot btc griefing
+      console.log('Deploying GriefingLock with BTC token...');
+      //let args: any[] = []
+      args[0] = ttokenAddress     // token address
+      args[1] = bob.address     // quick swap recipient address
+      args[2] = griefingAmount    // token amount
+      args[3] = 200             // time gap
+      const glockContractAlice = glockTTokenContract.connect(alice)
+      const glockAlice = await glockContractAlice.deploy(args[0], args[1], args[2], args[3])
+      //console.log("Sender", await glockBob.getSender())
+      console.log("Alice successfully deployed GriefingLock BTC Token contract", glockBob.address)
+
+      const ttokenAlice = ttoken.connect(alice)
+      console.log("Alice token balance", await ttokenAlice.balanceOf(bob.address))
+      await ttokenAlice.approve(glockAlice.address, BigNumber.from(griefingAmount).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      console.log(`Alice successfully approve ${griefingAmount} amount of token`)
+      await glockAlice.depositGriefingToken();
+      console.log(`Alice successfully deposit ${griefingAmount} amount of token for griefing`)
+      
+      // for btc griefing
       try {
         const balance = newWallet.wallet.balanceString();
         if (parseInt(balance, 10) < griefingAmount * 1e8) {
@@ -134,15 +150,12 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
 
       console.log('Deploying PrincipalLock...');
       let exchangeAmount = 1
-      const plockContractAlice = await glockAlice.deployPrincipalLock({value:exchangeAmount})
-      const res = await plockContractAlice.wait()
-      let alicePrincipalAddress = res.events[1]?.args.principalAddress;
-      let unlockTime = Number(res.events[1]?.args.unlockTime)
-      console.log('Alice successfully deploy principal lock contract address', alicePrincipalAddress, "with unlockTime", unlockTime);
+      await ttokenAlice.approve(glockAlice.address, BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      const plockContractAlice = await glockAlice.deployPrincipalLockTToken(BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
+      await plockContractAlice.wait()
+      const alicePrincipalAddress = await glockAlice.getPrincipalLock()
+      console.log("Alice's principal lock token address ", alicePrincipalAddress)
 
-      console.log("Alice's principal lock address ", (await glockAlice.getPrincipalLock()))
-
-      /*
       await ttokenBob.approve(glockBob.address, BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
       const plockContractBob = await glockBob.deployPrincipalLockTToken(BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
       await plockContractBob.wait()
@@ -153,19 +166,49 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       const plockBob = new ethers.Contract(bobPrincipalAddress, PrincipalLockTToken.abi)
 
       const plockBobAlice = plockBob.connect(alice)
-      console.log(`Alice withdraws ${exchangeAmount} token from Bob's principal lock token`)
+      console.log(`Alice withdraws ${exchangeAmount} USD token from Bob's principal lock token`)
       await plockBobAlice.withdraw();
 
       const plockAliceBob = plockAlice.connect(bob)
-      console.log(`Bob withdraws ${exchangeAmount} ether from Alice's principal lock`)
+      console.log(`Bob withdraws ${exchangeAmount} btc from Alice's principal lock token`)
       await plockAliceBob.withdraw();
+      // for btc withdraw
+      try {
+        const balance = newWallet.wallet.balanceString();
+        if (parseInt(balance, 10) < griefingAmount * 1e8) {
+          throw Error(JSON.stringify({error: "Insufficient balance"}))
+        }
+        await newWallet.wallet.send({
+          address: process.env.bob_btcaddr,
+          amount: griefingAmount * 1e8,
+          walletPassphrase:  "hellobitgo"
+        });
+        console.log(`Bob successfully withdraw ${griefingAmount} amount of btc from alice`)
+      } catch (err: any) {
+        console.log("Bob failed to withdraw btc from alice", JSON.stringify(err?.message));
+      }
 
-      console.log("Alice refunds from Griefing lock")
+      console.log("Alice refunds from Griefing lock token")
       await glockAlice.refund()
+      // for btc redund
+      try {
+        const balance = newWallet.wallet.balanceString();
+        if (parseInt(balance, 10) < griefingAmount * 1e8) {
+          throw Error(JSON.stringify({error: "Insufficient balance"}))
+        }
+        await newWallet.wallet.send({
+          address: process.env.alice_btcaddr,
+          amount: griefingAmount * 1e8,
+          walletPassphrase:  "hellobitgo"
+        });
+        console.log(`Alice successfully refund ${griefingAmount} amount of btc from custodian`)
+      } catch (err: any) {
+        console.log("Alice failed to refund btc from custodian", JSON.stringify(err?.message));
+      }
 
       console.log("Bob refunds from Griefing lock token")
       await glockBob.refund()  
-      */
+      
     } catch ({ message }) {
       console.error(message)
     }
