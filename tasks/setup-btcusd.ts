@@ -1,5 +1,6 @@
 import { task, types } from "hardhat/config";
 import { BigNumber } from "ethers";
+import { BitGo } from "bitgo";
 import { BitGoAPI } from "@bitgo/sdk-api";
 import { Tbtc } from "@bitgo/sdk-coin-btc";
 import TToken from "../artifacts/contracts/TToken.sol/TToken.json";
@@ -34,34 +35,52 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       });
 
       // get access token
-      const access_token = await newbitgo.addAccessToken({
-        otp: "000000",
-        label: "Admin Access Token",
-        scope: [
-          "metamask_institutional",
-          "openid",
-          "pending_approval_update",
-          "portfolio_view",
-          "profile",
-          "trade_trade",
-          "trade_view",
-          "wallet_approve_all",
-          "wallet_create",
-          "wallet_edit_all",
-          "wallet_manage_all",
-          "wallet_spend_all",
-          "wallet_view_all",
-        ],
-        // Optional: Set a spending limit.
-        spendingLimits: [
-          {
-            coin: "tbtc",
-            txValueLimit: "1000000000", // 10 TBTC (10 * 1e8)
-          },
-        ],
-      });
-      console.log(access_token);
+      let bitgo_access_token = process.env.bitgo_access_token
+      if (bitgo_access_token == '') {
+        const access_token = await newbitgo.addAccessToken({
+          otp: "000000",
+          label: "Admin Access Token",
+          scope: [
+            "metamask_institutional",
+            "openid",
+            "pending_approval_update",
+            "portfolio_view",
+            "profile",
+            "trade_trade",
+            "trade_view",
+            "wallet_approve_all",
+            "wallet_create",
+            "wallet_edit_all",
+            "wallet_manage_all",
+            "wallet_spend_all",
+            "wallet_view_all",
+          ],
+          // Optional: Set a spending limit.
+          spendingLimits: [
+            {
+              coin: "tbtc",
+              txValueLimit: "1000000000", // 10 TBTC (10 * 1e8)
+            },
+          ],
+        });
+        bitgo_access_token = access_token.token
+      }
+      console.log("bitgo_access_token", bitgo_access_token);
 
+      // Initialize the wallet
+      const bitgo = new BitGo({
+        accessToken: bitgo_access_token,
+        env: 'test',
+      })
+
+      const btc_params = {
+        "passphrase": "hellobitgo",
+        "label": "firstwallet"
+      };
+      // Create a tbtc wallet
+      const newWallet = await bitgo.coin('tbtc').wallets().generateWallet(btc_params);
+      console.log(newWallet)
+  
       const ttoken = new ethers.Contract(ttokenAddress, TToken.abi)
       const ttokenAdmin = ttoken.connect(admin)
       console.log("Admin token balance", await ttokenAdmin.balanceOf(admin.address))
