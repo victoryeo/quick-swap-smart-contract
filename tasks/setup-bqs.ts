@@ -37,7 +37,8 @@ task("basic-qs", "Perform Basic Quick Swap")
       console.log(`Alice successfully deposit ${griefingAmount} amount of ether for griefing`)
 
       console.log('Deploying PrincipalLock...');
-      const plockContractAlice = await glockAlice.deployPrincipalLock({value:2})
+      let exchangeAmount = 2
+      const plockContractAlice = await glockAlice.deployPrincipalLock({value:exchangeAmount})
       const res = await plockContractAlice.wait()
       let principalAddress = res.events[1]?.args.principalAddress;
       let unlockTime = Number(res.events[1]?.args.unlockTime)
@@ -50,7 +51,7 @@ task("basic-qs", "Perform Basic Quick Swap")
       args[0] = glockBob.address  // griefing lock address
       args[1] = bob.address       // sender
       args[2] = alice.address     // receiver
-      args[3] = 1                 // token amount
+      args[3] = exchangeAmount               // token amount
       args[4] = unlockTime + 400             // unlock time
 
       const plockContractBob = plockContract.connect(bob)
@@ -60,11 +61,11 @@ task("basic-qs", "Perform Basic Quick Swap")
       const plockAlice = new ethers.Contract(principalAddress, PrincipalLock.abi)
 
       const plockBobAlice = plockBob.connect(alice)
-      console.log("Alice withdraws from Bob's principal lock")
+      console.log(`Alice withdraws ${exchangeAmount} ether from Bob's principal lock`)
       await plockBobAlice.withdraw();
 
       const plockAliceBob = plockAlice.connect(bob)
-      console.log("Bob withdraws from Alice's principal lock")
+      console.log(`Bob withdraws ${exchangeAmount} ether from Alice's principal lock`)
       await plockAliceBob.withdraw();
 
       console.log("Alice refunds from Griefing lock")
