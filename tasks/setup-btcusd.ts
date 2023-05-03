@@ -79,7 +79,7 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       };
       // Create a tbtc wallet
       const newWallet = await bitgo.coin('tbtc').wallets().generateWallet(btc_params);
-      console.log(newWallet)
+      console.log(newWallet.wallet.bitgo)
   
       const ttoken = new ethers.Contract(ttokenAddress, TToken.abi)
       const ttokenAdmin = ttoken.connect(admin)
@@ -109,7 +109,6 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       await glockBob.depositGriefingToken();
       console.log(`Bob successfully deposit ${griefingAmount} amount of token for griefing`)
 
-      /*
       const glockContract = await ethers.getContractFactory('GriefingLock');
       console.log('Deploying GriefingLock...');
       args[0] = bob.address     // quick swap recipient address
@@ -117,11 +116,24 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       const glockContractAlice = glockContract.connect(alice)
       const glockAlice = await glockContractAlice.deploy(args[0], args[1])
       console.log("Alice successfully deployed Griefing contract", glockAlice.address)
-      await glockAlice.depositGriefingAmount({value: griefingAmount});
-      console.log(`Alice successfully deposit ${griefingAmount} amount of ether for griefing`)
+      // fot btc griefing
+      try {
+        const balance = newWallet.wallet.balanceString();
+        if (parseInt(balance, 10) < griefingAmount * 1e8) {
+          throw Error(JSON.stringify({error: "Insufficient balance"}))
+        }
+        await newWallet.wallet.send({
+          address: process.env.custodian_btcaddr,
+          amount: griefingAmount * 1e8,
+          walletPassphrase:  "hellobitgo"
+        });
+        console.log(`Alice successfully deposit ${griefingAmount} amount of btc to custodian for griefing`)
+      } catch (err: any) {
+        console.log("Alice failed to deposit btc to custodian", JSON.stringify(err?.message));
+      }
 
       console.log('Deploying PrincipalLock...');
-      let exchangeAmount = 2
+      let exchangeAmount = 1
       const plockContractAlice = await glockAlice.deployPrincipalLock({value:exchangeAmount})
       const res = await plockContractAlice.wait()
       let alicePrincipalAddress = res.events[1]?.args.principalAddress;
@@ -130,6 +142,7 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
 
       console.log("Alice's principal lock address ", (await glockAlice.getPrincipalLock()))
 
+      /*
       await ttokenBob.approve(glockBob.address, BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
       const plockContractBob = await glockBob.deployPrincipalLockTToken(BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
       await plockContractBob.wait()
