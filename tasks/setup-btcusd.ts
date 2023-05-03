@@ -67,7 +67,7 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       }
       console.log("bitgo_access_token", bitgo_access_token);
 
-      // Initialize the wallet
+      // Initialize the bitgo wallet
       const bitgo = new BitGo({
         accessToken: bitgo_access_token,
         env: 'test',
@@ -81,6 +81,7 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       const newWallet = await bitgo.coin('tbtc').wallets().generateWallet(btc_params);
       console.log(newWallet.wallet.bitgo)
   
+      // admin transfer tokens
       const ttoken = new ethers.Contract(ttokenAddress, TToken.abi)
       const ttokenAdmin = ttoken.connect(admin)
       console.log("Admin token balance", await ttokenAdmin.balanceOf(admin.address))
@@ -89,6 +90,7 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       await ttokenAdmin.transferFrom(admin.address, bob.address, BigNumber.from(griefingAmount*3).mul(BigNumber.from(10).pow(PWR_INDEX)))
       console.log(`Admin successfully transfer ${griefingAmount}*3 amount of token to Bob`)
 
+      // admin transfer tokens
       await ttokenAdmin.approve(admin.address, BigNumber.from(griefingAmount*3).mul(BigNumber.from(10).pow(PWR_INDEX)))
       console.log(`Admin successfully approve ${griefingAmount}*3 amount of token`)
       await ttokenAdmin.transferFrom(admin.address, alice.address, BigNumber.from(griefingAmount*3).mul(BigNumber.from(10).pow(PWR_INDEX)))
