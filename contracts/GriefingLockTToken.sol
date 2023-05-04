@@ -62,10 +62,10 @@ contract GriefingLockTToken is Ownable {
             _accessible == false,
             "Withdrawal: Principal Lock is deployed. Claim your funds"
         );
-        require(
-            _unlockTime < block.timestamp,
-            "Withdrawal: Unlock Time has yet to pass"
-        );
+        //require(
+        //    _unlockTime < block.timestamp,
+        //    "Withdrawal: Unlock Time has yet to pass"
+        //);
         _;
     }
 
