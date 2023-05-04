@@ -28,7 +28,7 @@ task("advanced-qs", "Perform Advanced Quick Swap")
       console.log(`Admin successfully transfer ${griefingAmount}*3 amount of token to Bob`)
 
       const glockTTokenContract = await ethers.getContractFactory('GriefingLockTToken');
-      console.log('Deploying GriefingLock with TToken...');
+      console.log('Deploying GriefingLock with USD Token...');
 
       let args: any[] = []
       args[0] = ttokenAddress     // token address
@@ -38,7 +38,7 @@ task("advanced-qs", "Perform Advanced Quick Swap")
       const glockContractBob = glockTTokenContract.connect(bob)
       const glockBob = await glockContractBob.deploy(args[0], args[1], args[2], args[3])
       //console.log("Sender", await glockBob.getSender())
-      console.log("Bob successfully deployed GriefingLock TToken contract", glockBob.address)
+      console.log("Bob successfully deployed GriefingLock USD Token contract", glockBob.address)
 
       const ttokenBob = ttoken.connect(bob)
       console.log("Bob token balance", await ttokenBob.balanceOf(bob.address))
@@ -82,7 +82,7 @@ task("advanced-qs", "Perform Advanced Quick Swap")
       const plockContractBob = await glockBob.deployPrincipalLockTToken(BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
       await plockContractBob.wait()
       const bobPrincipalAddress = await glockBob.getPrincipalLock()
-      console.log("Bob's principal lock token address ", bobPrincipalAddress)
+      console.log("Bob's principal lock with USD token, address ", bobPrincipalAddress)
 
       const plockAlice = new ethers.Contract(alicePrincipalAddress, PrincipalLock.abi)
       const plockBob = new ethers.Contract(bobPrincipalAddress, PrincipalLockTToken.abi)
