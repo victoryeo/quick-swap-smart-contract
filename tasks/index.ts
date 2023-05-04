@@ -1,4 +1,5 @@
 export * from "./setup-bqs"
 export * from "./setup-aqs"
 export * from "./setup-btcusd"
-export * from "./fail-aqs"
+export * from "./fail-aqs1"
+export * from "./fail-aqs2"
