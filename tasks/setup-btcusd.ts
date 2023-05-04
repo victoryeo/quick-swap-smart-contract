@@ -10,6 +10,28 @@ import PrincipalLockTToken from "../artifacts/contracts/PrincipalLockTToken.sol/
 
 require('dotenv').config()
 
+const btcCall = async(
+  initiator: string,
+  action: string,
+  receiver: string,
+  newWallet: any, 
+  griefingAmount: number) => {  
+  try {
+    const balance = newWallet.wallet.balanceString();
+    if (parseInt(balance, 10) < griefingAmount * 1e8) {
+      throw Error(JSON.stringify({error: "Insufficient balance"}))
+    }
+    await newWallet.wallet.send({
+      address: process.env.custodian_btcaddr,
+      amount: griefingAmount * 1e8,
+      walletPassphrase:  "hellobitgo"
+    });
+    console.log(`${initiator} successfully ${action} ${griefingAmount} amount of btc to ${receiver}`)
+  } catch (err: any) {
+    console.log(`${initiator} failed to ${action} btc to ${receiver}`, JSON.stringify(err?.message));
+  }
+}
+
 task("btcusd-qs", "Perform BTC/USD Quick Swap")
   .addParam("ttokenAddress", " USD Token Contract Address", undefined, types.string)
   .setAction(async (
@@ -135,20 +157,7 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       console.log(`Alice successfully deposit ${griefingAmount} amount of token for griefing`)
       
       // for btc griefing
-      try {
-        const balance = newWallet.wallet.balanceString();
-        if (parseInt(balance, 10) < griefingAmount * 1e8) {
-          throw Error(JSON.stringify({error: "Insufficient balance"}))
-        }
-        await newWallet.wallet.send({
-          address: process.env.custodian_btcaddr,
-          amount: griefingAmount * 1e8,
-          walletPassphrase:  "hellobitgo"
-        });
-        console.log(`Alice successfully deposit ${griefingAmount} amount of btc to custodian for griefing`)
-      } catch (err: any) {
-        console.log("Alice failed to deposit btc to custodian", JSON.stringify(err?.message));
-      }
+      btcCall("Alice", "deposit", "custodian", newWallet, griefingAmount)
 
       console.log('Deploying PrincipalLock...');
       let exchangeAmount = 1
@@ -157,6 +166,8 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       await plockContractAlice.wait()
       const alicePrincipalAddress = await glockAlice.getPrincipalLock()
       console.log("Alice's principal lock token address ", alicePrincipalAddress)
+      // for btc funding
+      btcCall("Alice", "fund principal lock", "custodian", newWallet, griefingAmount)
 
       await ttokenBob.approve(glockBob.address, BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
       const plockContractBob = await glockBob.deployPrincipalLockTToken(BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
@@ -175,38 +186,12 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       console.log(`Bob withdraws ${exchangeAmount} btc from Alice's principal lock token`)
       await plockAliceBob.withdraw();
       // for btc withdraw
-      try {
-        const balance = newWallet.wallet.balanceString();
-        if (parseInt(balance, 10) < griefingAmount * 1e8) {
-          throw Error(JSON.stringify({error: "Insufficient balance"}))
-        }
-        await newWallet.wallet.send({
-          address: process.env.bob_btcaddr,
-          amount: griefingAmount * 1e8,
-          walletPassphrase:  "hellobitgo"
-        });
-        console.log(`Bob successfully withdraw ${griefingAmount} amount of btc from alice`)
-      } catch (err: any) {
-        console.log("Bob failed to withdraw btc from alice", JSON.stringify(err?.message));
-      }
+      btcCall("Bob", "withdraw", "Alice", newWallet, griefingAmount)
 
       console.log("Alice refunds from Griefing lock token")
       await glockAlice.refund()
-      // for btc redund
-      try {
-        const balance = newWallet.wallet.balanceString();
-        if (parseInt(balance, 10) < griefingAmount * 1e8) {
-          throw Error(JSON.stringify({error: "Insufficient balance"}))
-        }
-        await newWallet.wallet.send({
-          address: process.env.alice_btcaddr,
-          amount: griefingAmount * 1e8,
-          walletPassphrase:  "hellobitgo"
-        });
-        console.log(`Alice successfully refund ${griefingAmount} amount of btc from custodian`)
-      } catch (err: any) {
-        console.log("Alice failed to refund btc from custodian", JSON.stringify(err?.message));
-      }
+      // for btc refund
+      btcCall("Alice", "refund", "custodian", newWallet, griefingAmount)
 
       console.log("Bob refunds from Griefing lock token")
       await glockBob.refund()  
