@@ -48,6 +48,10 @@ task("fail-aqs2", "Advanced Quick Swap Negative Scenario")
       console.log(`Bob successfully deposit ${griefingAmount} amount of token for griefing`)
 
       console.log("Alice backs out, Bob refund the tokens in griefing lock")
+      console.log("Bob token balance", await ttokenBob.balanceOf(bob.address))
+      console.log("Bob refunds from his Griefing lock token")
+      await glockBob.refund()
+      console.log("Bob token balance", await ttokenBob.balanceOf(bob.address))
 
     } catch ({ message }) {
       console.error(message)
