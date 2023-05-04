@@ -28,7 +28,7 @@ const btcCall = async(
     });
     console.log(`${initiator} successfully ${action} ${griefingAmount} amount of btc to ${receiver}`)
   } catch (err: any) {
-    console.log(`${initiator} failed to ${action} btc to ${receiver}`, JSON.stringify(err?.message));
+    console.log(`${initiator} failed to ${action} w.r.t. ${receiver}`, JSON.stringify(err?.message));
   }
 }
 
@@ -167,7 +167,7 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       const alicePrincipalAddress = await glockAlice.getPrincipalLock()
       console.log("Alice's principal lock token address ", alicePrincipalAddress)
       // for btc funding
-      btcCall("Alice", "fund principal lock", "custodian", newWallet, griefingAmount)
+      btcCall("Alice", "fund", "principal lock", newWallet, griefingAmount)
 
       await ttokenBob.approve(glockBob.address, BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
       const plockContractBob = await glockBob.deployPrincipalLockTToken(BigNumber.from(exchangeAmount*1).mul(BigNumber.from(10).pow(PWR_INDEX)))
@@ -186,7 +186,7 @@ task("btcusd-qs", "Perform BTC/USD Quick Swap")
       console.log(`Bob withdraws ${exchangeAmount} btc from Alice's principal lock token`)
       await plockAliceBob.withdraw();
       // for btc withdraw
-      btcCall("Bob", "withdraw", "Alice", newWallet, griefingAmount)
+      btcCall("Bob", "withdraw", "principal lock", newWallet, griefingAmount)
 
       console.log("Alice refunds from Griefing lock token")
       await glockAlice.refund()
