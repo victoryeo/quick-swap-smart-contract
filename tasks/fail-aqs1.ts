@@ -18,6 +18,8 @@ task("bob-backout", "Advanced Quick Swap Negative Scenario")
       console.log("Alice", alice.address)
       console.log("Bob", bob.address)
       let griefingAmount = 1
+      let aliceGriefingAmount = ethers.utils.parseUnits("1.0", 15);
+      console.log("Alice griefing amount", aliceGriefingAmount)
 
       const ttoken = new ethers.Contract(ttokenAddress, TToken.abi)
       const ttokenAdmin = ttoken.connect(admin)
@@ -54,8 +56,8 @@ task("bob-backout", "Advanced Quick Swap Negative Scenario")
       const glockContractAlice = glockContract.connect(alice)
       const glockAlice = await glockContractAlice.deploy(args[0], args[1])
       console.log("Alice successfully deployed Griefing contract", glockAlice.address)
-      await glockAlice.depositGriefingAmount({value: griefingAmount});
-      console.log(`Alice successfully deposit ${griefingAmount} amount of ether for griefing`)
+      await glockAlice.depositGriefingAmount({value: aliceGriefingAmount});
+      console.log(`Alice successfully deposit ${aliceGriefingAmount} amount of wei for griefing`)
 
       console.log('Deploying PrincipalLock...');
       let exchangeAmount = 2
@@ -68,18 +70,16 @@ task("bob-backout", "Advanced Quick Swap Negative Scenario")
       console.log("Alice's principal lock address ", (await glockAlice.getPrincipalLock()))
 
       const ttokenAlice = ttoken.connect(alice)
-      console.log("Alice ether balance", await alice.getBalance())
       console.log("Alice token balance", await ttokenAlice.balanceOf(alice.address))
       console.log("Bob *backs out*, Alice withdraw the tokens in Bob's griefing lock")
       await glockBob.connect(alice).withdraw()
+      console.log("Alice token balance", await ttokenAlice.balanceOf(alice.address))
+
       console.log("Alice ether balance", await alice.getBalance())
-      console.log("Alice token balance", await ttokenAlice.balanceOf(alice.address))
-
-      console.log("Alice token balance", await ttokenAlice.balanceOf(alice.address))
-      console.log("Alice refunds from her Griefing lock token")
+      console.log("Alice refunds from her Griefing lock")
       await glockAlice.refund()
-      console.log("Alice token balance", await ttokenAlice.balanceOf(alice.address))      
-
+      console.log("Alice ether balance", await alice.getBalance())
+     
     } catch ({ message }) {
       console.error(message)
     }
