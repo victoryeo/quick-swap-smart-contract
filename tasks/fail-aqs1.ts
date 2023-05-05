@@ -5,7 +5,7 @@ import GriefingLock from "../artifacts/contracts/GriefingLock.sol/GriefingLock.j
 import PrincipalLock from "../artifacts/contracts/PrincipalLock.sol/PrincipalLock.json";
 import PrincipalLockTToken from "../artifacts/contracts/PrincipalLockTToken.sol/PrincipalLockTToken.json";
 
-task("fail-aqs1", "Advanced Quick Swap Negative Scenario")
+task("bob-backout", "Advanced Quick Swap Negative Scenario")
   .addParam("ttokenAddress", "TToken Contract Address", undefined, types.string)
   .setAction(async (
     { ttokenAddress }: { ttokenAddress: string },
@@ -74,6 +74,11 @@ task("fail-aqs1", "Advanced Quick Swap Negative Scenario")
       await glockBob.connect(alice).withdraw()
       console.log("Alice ether balance", await alice.getBalance())
       console.log("Alice token balance", await ttokenAlice.balanceOf(alice.address))
+
+      console.log("Alice token balance", await ttokenAlice.balanceOf(alice.address))
+      console.log("Alice refunds from her Griefing lock token")
+      await glockAlice.refund()
+      console.log("Alice token balance", await ttokenAlice.balanceOf(alice.address))      
 
     } catch ({ message }) {
       console.error(message)
