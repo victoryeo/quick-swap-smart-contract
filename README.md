@@ -25,3 +25,8 @@ npx hardhat basic-qs --ttoken-address 0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab
 #### this command will deploy griefing lock, griefing token lock, principal lock
 npx hardhat advanced-qs --ttoken-address 0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab --network ganache
 (the address are obtained from hardhat deploy)
+
+### Btc/Usd quick swap on ganache network (tested)
+#### this also uses BitGo API to send testnet Btc
+npx hardhat btcusd-qs  --ttoken-address 0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab --network ganache
+
