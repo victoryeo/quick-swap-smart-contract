@@ -46,7 +46,7 @@ contract GriefingLock is Ownable {
     }
 
     modifier validUnlockTime(uint timeGap) {
-        require(timeGap >= MIN_TIME_GAP, string(abi.encodePacked("Time: Unlock Time must be at least ", Strings.toString(MIN_TIME_GAP), " seconds later")));
+        //require(timeGap >= MIN_TIME_GAP, string(abi.encodePacked("Time: Unlock Time must be at least ", Strings.toString(MIN_TIME_GAP), " seconds later")));
         _;
     }
 

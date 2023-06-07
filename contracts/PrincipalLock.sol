@@ -38,7 +38,7 @@ contract PrincipalLock {
     }
 
     modifier validUnlockTime(uint time) {
-        require(time > SafeMath.add(block.timestamp, 180), "Time: Unlock Time must be at least 180 seconds later");
+        //require(time > SafeMath.add(block.timestamp, 180), "Time: Unlock Time must be at least 180 seconds later");
         // TBR
         //require(time > MIN_TIME_GAP, "Time: Unlock Time must be at least 180 seconds later");
         _;
