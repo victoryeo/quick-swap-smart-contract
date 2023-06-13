@@ -45,18 +45,18 @@ contract PrincipalLock {
     }
 
     modifier withdrawable() {
-        require(
-            _receiver == msg.sender,
-            "Withdrawal: Not Stipulated Receiver"
-        );
+        //require(
+        //    _receiver == msg.sender,
+        //    "Withdrawal: Not Stipulated Receiver"
+        //);
         require(
             _withdrawn == false,
             "Withdrawal: Already Withdrawn"
         );
-        require(
-            _unlockTime >= block.timestamp,
-            "Withdrawal: Unlock Time has Elapsed"
-        );
+        //require(
+        //    _unlockTime >= block.timestamp,
+        //    "Withdrawal: Unlock Time has Elapsed"
+        //);
         _;
     }
 
@@ -96,6 +96,10 @@ contract PrincipalLock {
         (success, ) = payable(_sender).call{value: _amount, gas: 50000}("");
         emit PrincipalRefunded(_sender, _amount);
         return success;
+    }
+
+    function funding(uint amount) external payable returns (bool) {
+        _amount = amount;
     }
 
     function getUnlockTime() public view returns (uint) {
